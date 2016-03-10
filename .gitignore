@@ -6,8 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
-#Standard Workload Files or Format (Cannot remember)
+#Standard Workload Format
 *.swf
+
+*.csv
 
 # Distribution / packaging
 .Python
