@@ -5,6 +5,7 @@ from BatchScheduler import BatchScheduler
 from Job import Job
 from Job_Queue import Job_Queue
 from DAG_Generator import DAG_Generator
+from CSV_Creator import CSV_Creator
 
 #Workload
 if len(sys.argv) == 2:
@@ -25,7 +26,7 @@ graph = DAG_Generator(64)
 #Batch Scheduler and jobs 
 completed_jobs = []
 jobs = []
-system_procs = 512#6
+system_procs = 240
 batchscheduler = BatchScheduler(system_procs, graph)
 
 
@@ -34,7 +35,7 @@ batchscheduler = BatchScheduler(system_procs, graph)
 
 #loop to traverse workload jobs
 begin = 0
-end = 800#5
+end = 1000
 for i in range(begin, end):
 
 
@@ -43,6 +44,13 @@ for i in range(begin, end):
 	# #print 'run queue start = ', job_to_submit.run_queue_start
 	# print 'actual time = ', job_to_submit.actual_time
 	# #print 'run queue end =', job_to_submit.run_queue_end
+
+    ##########     checks for incorrect jobs in .swf file     ##########
+	if job_to_submit.submit_time == -1 or job_to_submit.actual_time == -1 or job_to_submit.number_of_procs == -1:
+		job_to_submit.submit_time = 0
+		job_to_submit.actual_time = 0
+		job_to_submit.number_of_procs = 0
+
 
 	if job_to_submit.number_of_procs <= system_procs:
 		batchscheduler.submit_new_job(job_to_submit)
@@ -79,31 +87,31 @@ for i in range(begin, end):
 		# 	print 'job_id == ', z.job.job_id
 
 		##########     submit first dag job     ##########
-		if batchscheduler.current_time >= 100000 and batchscheduler.is_head_job_submitted == True:
-			x = batchscheduler.graph.get_head_node()
-			x.submit_time = batchscheduler.current_time
-			batchscheduler.submit_new_job(x)
-			batchscheduler.dag_jobs_in_system.append(x)
-			batchscheduler.is_head_job_submitted = False
+#		if batchscheduler.current_time >= 100000 and batchscheduler.is_head_job_submitted == True:
+#			x = batchscheduler.graph.get_head_node()
+#			x.submit_time = batchscheduler.current_time
+#			batchscheduler.submit_new_job(x)
+#			batchscheduler.dag_jobs_in_system.append(x)
+#			batchscheduler.is_head_job_submitted = False
 
 		###submit completed dag jobs to a list
-		count = 0
-		if completed_job_from_queue.job.is_dag_job:
-			batchscheduler.completed_dag_jobs.append(completed_job_from_queue.job)
+#		count = 0
+#		if completed_job_from_queue.job.is_dag_job:
+#			batchscheduler.completed_dag_jobs.append(completed_job_from_queue.job)
 
 			##########     Logic to submit the dag jobs dependent on completed dag job     ##########
-			successors_list = batchscheduler.DAG.successors(completed_job_from_queue.job)
-			for x in successors_list:
-				predecessors_list = batchscheduler.DAG.predecessors(x)
-				count = 0
-				for y in predecessors_list:
-					if y in batchscheduler.completed_dag_jobs:
-						#print y.job_id
-						count = count + 1
-				if count == batchscheduler.DAG.in_degree(x):
-					x.submit_time = batchscheduler.current_time
-					batchscheduler.submit_new_job(x)
-					batchscheduler.dag_jobs_in_system.append(x)
+#			successors_list = batchscheduler.DAG.successors(completed_job_from_queue.job)
+#			for x in successors_list:
+#				predecessors_list = batchscheduler.DAG.predecessors(x)
+#				count = 0
+#				for y in predecessors_list:
+#					if y in batchscheduler.completed_dag_jobs:
+#						#print y.job_id
+#						count = count + 1
+#				if count == batchscheduler.DAG.in_degree(x):
+#					x.submit_time = batchscheduler.current_time
+#					batchscheduler.submit_new_job(x)
+#					batchscheduler.dag_jobs_in_system.append(x)
 
 
 		batchscheduler.put_job_in_run_queue_if_can()
@@ -121,32 +129,38 @@ for i in range(begin, end):
 head_job = batchscheduler.graph.get_head_node()
 tail_job = batchscheduler.graph.get_tail_node()
 
+
+
+results = CSV_Creator(completed_jobs)
+results.results_to_file()
+
+
 head_tail_list = []
 ###### print the jobs ###########
-print 'completed_jobs', len(completed_jobs)
-for i in completed_jobs:
-	print 'job_id = ', i.job.job_id
-	print 'completed time =', i.job.run_queue_end
-	#if i.job.job_id < 0:
-	if i.job.job_id == head_job.job_id:
-		head_tail_list.append(i.job)
-		print 'completed job id:', i.job.job_id
-		print 'head job submit time', i.job.submit_time
-		print
-	if i.job.job_id == tail_job.job_id:
-		head_tail_list.append(i.job)
-		print 'completed job id:', i.job.job_id
-		print 'tail job end time', i.job.run_queue_end
+#print 'completed_jobs', len(completed_jobs)
+#for i in completed_jobs:
+#	print 'job_id = ', i.job.job_id
+#	print 'completed time =', i.job.run_queue_end
+#	#if i.job.job_id < 0:
+#	if i.job.job_id == head_job.job_id:
+#		head_tail_list.append(i.job)
+#		print 'completed job id:', i.job.job_id
+#		print 'head job submit time', i.job.submit_time
+#		print
+#	if i.job.job_id == tail_job.job_id:
+#		head_tail_list.append(i.job)
+#		print 'completed job id:', i.job.job_id
+#		print 'tail job end time', i.job.run_queue_end
 
-if len(head_tail_list) == 2:
-	print 'total time for dag job = ', (head_tail_list[1].run_queue_end - head_tail_list[0].submit_time)
+#if len(head_tail_list) == 2:
+#	print 'total time for dag job = ', (head_tail_list[1].run_queue_end - head_tail_list[0].submit_time)
 
 
 #batchscheduler.print_running_queue()
 print 'program terminates at: ', batchscheduler.current_time
 
-for x in batchscheduler.waiting_queue:
-	if x.job_id < 0:
-		print 'wait queue job', x.job_id
+#for x in batchscheduler.waiting_queue:
+#	if x.job_id < 0:
+#		print 'wait queue job', x.job_id
 
-batchscheduler.print_running_queue()
+#batchscheduler.print_running_queue()
