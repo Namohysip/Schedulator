@@ -26,6 +26,10 @@ class Workload(object):
 		for (i,line) in enumerate(job_list_file.readlines()):
 			#split removes multiple whitespaces, join removes leading and trailing whitespace and joins on ' '
 			line = ' '.join(line.split())
+			#print line
+			arr = line.split(" ")
+			if len(arr) > 8 and arr[3] == -1:
+				print arr[0]
 			if not line.startswith(';'):
 				self.job_list.append(line)	
 		self.job_list.append('-1 100000000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1 -1 -1 -1')
