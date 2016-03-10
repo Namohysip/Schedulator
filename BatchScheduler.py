@@ -36,7 +36,7 @@ class BatchScheduler(object):
 
 
 	def submit_new_job(self, job_to_submit):
-		print "job ", job_to_submit.job_id, "was submitted at time ", self.current_time
+		#print "job ", job_to_submit.job_id, "was submitted at time ", self.current_time
 		self.total_jobs_in_system.append(job_to_submit)
 		self.waiting_queue.append(job_to_submit)
 		#####     calculates the job run queue start time and the number of prcesses available in system at that time
@@ -92,9 +92,9 @@ class BatchScheduler(object):
 			self.waiting_queue[0].sys_procs_avail_at_run_queue_start = self.number_of_procs_available
 			self.number_of_procs_available = self.number_of_procs_available - self.waiting_queue[0].number_of_procs
 			endtime_priority = self.waiting_queue[0].actual_time
-			print 'job', self.waiting_queue[0].job_id, 'began running at time', self.current_time
-			print '     run que start = ', self.waiting_queue[0].run_queue_start 
-			print '     sys procs avail at start = ', self.waiting_queue[0].sys_procs_avail_at_run_queue_start
+			#print 'job', self.waiting_queue[0].job_id, 'began running at time', self.current_time
+			#print '     run que start = ', self.waiting_queue[0].run_queue_start 
+			#print '     sys procs avail at start = ', self.waiting_queue[0].sys_procs_avail_at_run_queue_start
 			self.running_queue.put(Job_Queue(endtime_priority, self.waiting_queue.pop(0)))
 			self.running_queue_priority_adjust()
 
@@ -112,9 +112,9 @@ class BatchScheduler(object):
 				self.waiting_queue[i].sys_procs_avail_at_run_queue_start = self.number_of_procs_available
 				self.number_of_procs_available = self.number_of_procs_available - self.waiting_queue[i].number_of_procs
 				endtime_priority = self.waiting_queue[i].actual_time
-				print 'backfilled job', self.waiting_queue[i].job_id, 'at time', self.current_time
-				print '     run que start = ', self.waiting_queue[i].run_queue_start 
-				print '     sys procs avail at start = ', self.waiting_queue[i].sys_procs_avail_at_run_queue_start
+				#print 'backfilled job', self.waiting_queue[i].job_id, 'at time', self.current_time
+				#print '     run que start = ', self.waiting_queue[i].run_queue_start 
+				#print '     sys procs avail at start = ', self.waiting_queue[i].sys_procs_avail_at_run_queue_start
 				self.running_queue.put(Job_Queue(endtime_priority, self.waiting_queue.pop(i)))
 				i = i -1
 				self.running_queue_priority_adjust()
@@ -127,9 +127,9 @@ class BatchScheduler(object):
 			self.waiting_queue[len(self.waiting_queue)-1].sys_procs_avail_at_run_queue_start = self.number_of_procs_available
 			self.number_of_procs_available = self.number_of_procs_available - self.waiting_queue[len(self.waiting_queue)-1].number_of_procs
 			endtime_priority = self.waiting_queue[len(self.waiting_queue)-1].actual_time
-			print 'backfilled job', self.waiting_queue[len(self.waiting_queue)-1].job_id, 'at time', self.current_time
-			print '     run que start = ', self.waiting_queue[len(self.waiting_queue)-1].run_queue_start 
-			print '     sys procs avail at start = ', self.waiting_queue[len(self.waiting_queue)-1].sys_procs_avail_at_run_queue_start
+			#print 'backfilled job', self.waiting_queue[len(self.waiting_queue)-1].job_id, 'at time', self.current_time
+			#print '     run que start = ', self.waiting_queue[len(self.waiting_queue)-1].run_queue_start 
+			#print '     sys procs avail at start = ', self.waiting_queue[len(self.waiting_queue)-1].sys_procs_avail_at_run_queue_start
 			self.running_queue.put(Job_Queue(endtime_priority, self.waiting_queue.pop(len(self.waiting_queue)-1)))
 			self.running_queue_priority_adjust()
 
